@@ -68,8 +68,17 @@ async def ask(ctx, *, message):
             'content': message,
         },
     ])
-    print(response['message']['content'])
-    await ctx.send(response['message']['content'])
+    
+    response_content = response['message']['content']
+    print(response_content)
+
+    # Check if the response exceeds 2000 characters
+    if len(response_content) > 2000:
+        for i in range(0, len(response_content), 2000):
+            chunk = response_content[i:i + 2000]
+            await ctx.send(chunk)  # Send each chunk
+    else:
+        await ctx.send(response_content)  # Send the full response if it's within the limit
 
 @bot.command(name='rand', help='Get a random ASCII art picture')
 async def ascii(ctx):
