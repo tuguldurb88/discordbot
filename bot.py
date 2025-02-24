@@ -40,7 +40,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command(name='rps', help='Play rock-paper-scissors')
-async def rps(ctx, user_choice: str):
+async def rps(ctx, *, user_choice: str):
     choices = ["rock", "paper", "scissors"]
     if user_choice.lower() not in choices:
         await ctx.send("Invalid choice. Please choose rock, paper, or scissors.")
@@ -58,7 +58,7 @@ async def rps(ctx, user_choice: str):
 async def ask(ctx, *, message):
     print(message)
     print("===============")
-    response = ollama.chat(model='llama3.1', messages=[
+    response = ollama.chat(model='deepseek-r1', messages=[
         {
             'role': 'system',
             'content': 'You are a helpful assistant who provides answers to questions concisely in no more than 1000 words.',
@@ -71,6 +71,17 @@ async def ask(ctx, *, message):
     
     response_content = response['message']['content']
     print(response_content)
+
+    # Remove <think> sections if present
+    if '<think>' in response_content:
+        parts = response_content.split('<think>')
+        filtered_parts = []
+        for part in parts:
+            if '</think>' in part:
+                filtered_parts.append(part.split('</think>')[1])
+            else:
+                filtered_parts.append(part)
+        response_content = ''.join(filtered_parts)
 
     # Check if the response exceeds 2000 characters
     if len(response_content) > 2000:
